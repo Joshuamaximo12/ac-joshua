@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
@@ -101,7 +101,7 @@ md"  "
 
 # ╔═╡ d2472d6a-7072-49ae-ba55-207db17be3ca
 begin
-    l = 2          # ¡Cambia el valor de l y corre la celda,
+    l = 0.01          # ¡Cambia el valor de l y corre la celda,
     plot(sin,0:l:2π) # y observa qué sucede con la gráfica!
 end
 
@@ -182,6 +182,24 @@ md"por lo que no es necesario llamar dos funciones cuando querramos hacer esto. 
 md""" **Ejercicio** Define un parámetro interactivo `d` que controle el nivel de detalle de una gráfica tipo `plot` de las funciones `sin` y `cos` en el intervalo $[-\pi,\pi]$, con el título "Funciones trigonométricas", donde cada función se grafique con un color diferente y la leyenda indique el nombre de cada función.
 
 """
+
+# ╔═╡ 255ce128-c0fc-411c-8bbf-361321041d9e
+@bind d Slider(0.05:0.05:2, default=0.5)
+
+# ╔═╡ f88ca426-5ad7-439c-b30c-dc1b40a6686b
+
+
+# ╔═╡ 5c8178d1-df01-462a-8a44-39945ee8f119
+begin
+    plot(sin,-π:d:π, title = "Funciones trigonométricas", xlabel = L"x", ylabel = "\$\\sin(x)\$", color = "blue", label = "sin(x)")     
+    
+end
+
+# ╔═╡ 030a81ea-1688-47e5-87a2-50aa9541a01b
+begin
+    plot(cos,-π:d:π, title = "Funciones trigonométricas", xlabel = L"x", ylabel = "\$\\cos(x)\$", color = "purple", label = "cos(x)")     
+    
+end
 
 # ╔═╡ acfe0334-c7aa-471f-b39e-8276e2e3dd42
 md"""#### El paquete `LaTeXStrings`
@@ -477,20 +495,92 @@ md"""**Ejercicio** Haz un código donde definas cuatro variables `h`, `r`, `θ` 
 Sugerencia: Repasa las ecuaciones cinemáticaticas del tiro parabólico e investiga los atributos `xaxis` y `yaxis` para poder fijar los ejes de la gráfica durante la animación."""
 
 # ╔═╡ 50f7f46b-081e-4b07-94af-1331b33a7c7f
-# Tu código (comentado) va aquí :D
+begin          # Definimos los valores de los parámetros.
+	r = 20     #donde r es la rapidez de la partícula en m/s
+	θ = π/4    #theta es el ángulo de la partícula
+	H = 1     #y H la altura 
+
+                       #Definamos las componentes del vector velocidad de la partícula
+	v_x = r*cos(θ)
+	v_y = r*sin(θ)
+	
+#Luego, definimos el vector posición de la partícula, así como sus componentes
+
+	p(x) = ((v_x)*x,H + (v_y)*x-9.81*x^2/2)
+	p_x(x)= (v_x)*x
+	p_y(x) = H + (v_y)*x-9.81*x^2/2
+
+	anima = @animate for t in 0:0.1:5 #Para cada t en 0:0.1:5
+		plot(p.( range(-(5),0, step = 0.1) .+t),
+			legend = false, title = "Tiro parabólico", lw=5, ls=:dot) #Con esto se obtiene la línea punteada 
+
+	scatter!([p_x(t)], [p_y(t)])          #Con esto se grafica la partícula
+	
+#Luego, se definen las variables del alcance horizontal máximo, así como la altura máxima para fijar los ejes.
+
+	x_max=v_x*((2*v_y/9.81+((2*v_y/9.81)^2+8*H/9.81)^(1/2))/2)
+	y_max=H + (v_y)*(v_y/9.81) -9.81*(v_y/9.81)^2/2
+
+	xlabel!("x")
+	ylabel!("y")
+
+	xlims!(0, x_max+0.5)
+	ylims!(0, y_max+0.5)
+
+	end
+
+	gif(anima, "Tiro_Parabolico.gif", fps = 30)
+end
+
 
 # ╔═╡ 59ec3890-303c-436a-8043-8e6bc9c427ed
 md"**Ejercicio** Crea una función que tome parámetros `h`, `r`, `θ` y `t`, y haga lo descrito en el Ejercicio anterior."
 
 # ╔═╡ c3264b4d-81b1-4e0c-9205-ff818665788c
-# Tu código (comentado) va aquí :D
+begin
+	altura=1
+	rapidez=20
+	theta=π/4 
+
+vx = rapidez*cos(θ)
+vy = rapidez*sin(θ)
+
+	P(x) = ((vx)*x,altura + (vy)*x-9.81*x^2/2)
+	P_x(x)= (vx)*x
+	P_y(x) = altura + (vy)*x-9.81*x^2/2
+
+	@gif for t in 0:0.1:5
+		plot(P.( range(-(5),0, step = 0.1) .+t), legend =false)
+
+		scatter!([P_x(t)], [P_y(t)])  
+
+xmax=vx*((2*vy/9.81+((2*vy/9.81)^2+8*altura/9.81)^(1/2))/2)
+	ymax=altura + (vy)*(vy/9.81) -9.81*(vy/9.81)^2/2
+
+	xlabel!(L"x")
+	ylabel!(L"y")
+
+	xlims!(0, xmax+0.5)
+	ylims!(0, ymax+0.5)
+
+	
+	end
+end
+	
 
 # ╔═╡ 77aacd79-26e3-40c2-ac22-f9121aac4155
 md"""**Ejercicio** Crea una animación de cómo la superficie obtenida de la función $h(x,y) = \cos(x) + \sin(y)$ se desplaza hacia el eje Y.
 """
 
 # ╔═╡ 4e68ad0c-17ef-41f7-b9fe-8561415bb7f2
-# Tu código (comentado) va aquí :D
+begin
+X = 0:0.02:2π 
+Y = 0:0.02:2π 
+surface(X,Y,h) # Tu código (comentado) va aquí :D
+end
+
+# ╔═╡ bc535225-0925-4a89-9105-48a330a66b8b
+
 
 # ╔═╡ 88299b4d-2a7d-4c18-956e-c6e75473c658
 md" ## Recursos complementarios
@@ -520,7 +610,7 @@ PlutoUI = "~0.7.38"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.4"
+julia_version = "1.8.5"
 manifest_format = "2.0"
 project_hash = "77e2734aeac55d5109eeed492b1ea958eae44caf"
 
@@ -1475,6 +1565,10 @@ version = "0.9.1+5"
 # ╠═fc94b6e8-cae9-46bc-9ac4-9cee5e86c8ee
 # ╟─77a60b5d-ad7f-4c44-a68d-694417619668
 # ╟─8b8aff3c-3d88-4022-bc86-b75ebefde2a3
+# ╠═255ce128-c0fc-411c-8bbf-361321041d9e
+# ╠═f88ca426-5ad7-439c-b30c-dc1b40a6686b
+# ╠═5c8178d1-df01-462a-8a44-39945ee8f119
+# ╠═030a81ea-1688-47e5-87a2-50aa9541a01b
 # ╟─acfe0334-c7aa-471f-b39e-8276e2e3dd42
 # ╠═8302701b-02ac-4d35-b7de-5dec8fe701fb
 # ╟─02f9778e-21c8-42db-bed6-95a20d592f22
@@ -1514,8 +1608,9 @@ version = "0.9.1+5"
 # ╠═50f7f46b-081e-4b07-94af-1331b33a7c7f
 # ╟─59ec3890-303c-436a-8043-8e6bc9c427ed
 # ╠═c3264b4d-81b1-4e0c-9205-ff818665788c
-# ╟─77aacd79-26e3-40c2-ac22-f9121aac4155
+# ╠═77aacd79-26e3-40c2-ac22-f9121aac4155
 # ╠═4e68ad0c-17ef-41f7-b9fe-8561415bb7f2
+# ╠═bc535225-0925-4a89-9105-48a330a66b8b
 # ╟─88299b4d-2a7d-4c18-956e-c6e75473c658
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
