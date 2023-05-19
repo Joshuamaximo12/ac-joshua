@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
@@ -225,23 +225,65 @@ $$x(t_1) \approx C_0 + hg(t_0,x(t_0)).$$
 # ╔═╡ 8655c243-679b-46fb-b506-a0b035e902b7
 md""" ### Implementación del método de Euler
 
-**Ejercicio** Crea una función `tamañoDePaso` que tome argumentos `t0`, `tf` y `N`, donde
-* `t0` es el tiempo inicial de un problema de condiciones iniciales,
-* `tf` es el tiempo final en el que queremos aproximar una solución a dicho problema, y
-* `N` es un número entero positivo,
+**Ejercicio** Crea una función `tamañoDePaso` que tome argumentos 't0', 'tf' y 'N', donde
+* 't0' es el tiempo inicial de un problema de condiciones iniciales,
+* 'tf' es el tiempo final en el que queremos aproximar una solución a dicho problema, y
+* 'N' es un número entero positivo,
 
 y devuelva el tamaño de paso $h$ correspondiente.
 
 """
 
-# ╔═╡ 643043b9-ae20-4071-9367-b282f2654fd7
-# Tu código va aquí :)
+# ╔═╡ 9a76ad7b-47c4-4d57-9ad8-046119e4cc5a
+begin
+function tamañoDepaso(t0, tf, N)
+    h = (tf - t0) / N
+    return h
+end
+	t0 = 0.0
+tf = 1.0
+N = 10
+
+h = tamañoDepaso(t0, tf, N)
+println("tamaño de paso: ", h)
+end
+#En esta función, restamos el tiempo inicial 't0' del tiempo final 'tf' y luego dividimos el resultado por el # número de pasos 'N' para calcular el tamaño del paso 'h'. Finalmente, devolvemos el valor calculado de 'h'.
+
+#Podemos usar esta función llamándola con los argumentos apropiados. 
+#En este ejemplo, el tiempo inicial 't0' se establece en 0.0, el tiempo final 'tf' se establece en 1.0 y el número de pasos 'N' se establece en 10. A continuación, se llama a la función tamañoDepaso con estos argumentos, y se imprime el tamaño de paso resultante 'h'.
 
 # ╔═╡ c84d2b95-07a4-45f8-8e7e-e372acc89cb8
 md" **Ejercicio** Crea una función `arregloUniforme` que tome los mismos argumentos que `tamañoDePaso` **más** un argumento `h` para el tamaño de paso y devuelva un arreglo uniforme de números desde `t0` hasta `tf` con dicho tamaño de paso entre ellos. Esta función debe imprimir un mensaje de error si $N$ **no** es un entero positivo. "
 
-# ╔═╡ b0eb99e9-978a-4914-90a9-e05c73115e73
-# Tu código (comentado) va aquí :)
+# ╔═╡ f9c3c11f-46f1-4052-bbde-9f1b836c609e
+begin
+#Debido a que en Pluto se corren todas las celdas, las variables utilizadas tendrán un modificación y se les 
+#agregaraán una letra adicional para hacer la distinción.
+	
+function arreglouniforme(t00, tff, NN, hh)
+    # Verificar si NN es un entero positivo
+    if !(isinteger(NN) && NN > 0)
+        error("NN debe ser un entero positivo")
+    end
+    
+    # Calcular el tamaño del paso
+    hh = (tff - t00) / NN
+    
+    # Crear el arreglo uniforme de números
+    t = collect(t00:hh:tff)
+    
+    return t
+end
+
+# Ejemplo de uso
+t00 = 0
+tff = 1
+NN = 5
+hh = (tff - t00) / NN
+
+t = arreglouniforme(t00, tff, NN, hh)
+println(t)
+end
 
 # ╔═╡ fa999314-0038-498a-ac9e-3ce04a9435a3
 md""" **Ejercicio** Crea una función `paso_euler` que tome argumentos `ti`, `xti`, `g` y `h`, donde
@@ -256,7 +298,29 @@ y devuelva una aproximación de $x(t_{i+1})$.
 """
 
 # ╔═╡ ecf4e2e8-821d-4e32-82d8-5eaec50363c3
-# Tu código (comentado) va aquí :)
+begin
+function paso_euler(ti, xti, g, H)
+    t_sigueinte = ti + H
+    x_siguiente = xti + H * g(ti, xti)
+    return x_siguiente
+end
+	# Definimos la ecuación diferencial g(t, x)
+function g(t, x)
+    # Definimos la ecuación diferencial 
+	g(t,x) = x′(t) = -0.3 * x
+    return -0.3 * x
+end
+
+# Establecemos las condiciones iniciales
+ti = 0.0
+xti = 1.0
+H = 0.1
+
+# Calculamos la siguiente aproximación utilizando el método de Euler
+x_siguiente = paso_euler(ti, xti, g, H)
+end
+
+#En este código, la función euler_step toma como argumentos el tiempo actual ti, la aproximación actual xti, la función g y el tamaño del paso h y calcula el siguiente valor de tiempo tnext sumando el tamaño de paso h al tiempo actual ti. Luego, calcula la siguiente aproximación xnext sumando el producto del tamaño del paso h y el valor de la función g(ti, xti) evaluado en el momento actual y la aproximación.
 
 # ╔═╡ 1ec8d06d-160f-49de-a1aa-25c9d17cce64
 md""" **Ejercicio** Crea una función `euler` que tome argumentos `g`, `xt0` y `t`, donde
@@ -270,7 +334,41 @@ y devuelva un arreglo con `xt0` y los valores aproximados de $x(t_i)$ para $1\le
 """
 
 # ╔═╡ 7c8c2188-3173-4202-8ba4-83554831d940
-# Tu código (comentado) va aquí :)
+begin
+	#Nuevamente se añadió una letra adicional para hacer la diferenciación de las variables
+function euler(p, xt00, tt)
+    nn = length(tt) - 1
+    hH = (tt[end] - tt[1]) / nn
+
+    x_ = zeros(nn+1)
+    x_[1] = xt00
+
+    for i = 1:nn
+        x_[i+1] = x_[i] + hH * p(tt[i], x_[i])
+    end
+
+    return x_
+end
+end
+
+
+# ╔═╡ 0e173521-5199-4d76-988e-ac6fe2703344
+begin
+	# Definimos la function g_(t, x)
+function p(t, x)
+    return -2 * t * x
+end
+
+# Definimos la condición y los pasos de tiempo
+xt00 = 5.0
+tt = range(0, stop=1, length=10)
+
+# Llamamos a la función euler
+result = euler(p, xt00, tt)
+
+# Imprimimos el resultado
+println(result)
+end
 
 # ╔═╡ 1dc4a3c3-6b1c-4024-bfaf-ce72f5533209
 md"""
@@ -284,14 +382,99 @@ Verifica que tu implementación del método de Euler sea correcta aplicándola a
 """
 
 # ╔═╡ d821fc74-b60f-4571-bd82-44b4f7ece230
-#= Tu código (comentado) va aquí :)
-   También puedes agregar celdas para discutir tus resultados. =#
+md"""
+**En caso de que la función x'(t)=g(t, x(t)) sólo dependa del tiempo,  ¿Qué operación matemática estaríamos llevando a cabo al aplicar el método de Euler?**
+
+Cuando se aplica el método de Euler a una ecuación diferencial de la forma x'(t) = g(t, x(t)), en la que la función g(t, x(t)) solo depende del tiempo, se está realizando una aproximación mediante una operación matemática llamada "integración numérica".
+
+El método de Euler es un método de integración numérica de primer orden, que aproxima la solución de una ecuación diferencial ordinaria (EDO) al tomar valores discretos en el dominio del tiempo y calcula los valores de la función en intervalos pequeños. En este caso, se está aproximando la integral de la función g(t, x(t)) respecto al tiempo en cada paso del método.
+
+El método de Euler utiliza una aproximación lineal para la función x(t), asumiendo que la derivada x'(t) se mantiene constante durante un intervalo de tiempo pequeño. Por lo tanto, la operación matemática que se lleva a cabo en cada paso del método de Euler es simplemente una suma ponderada de la derivada evaluada en el punto actual multiplicada por el tamaño del paso de tiempo.
+
+La fórmula general del método de Euler para resolver la ecuación diferencial x'(t) = g(t, x(t)) con condiciones iniciales x(t0) = x0 y un tamaño de paso de tiempo h es:
+
+x(t + h) = x(t) + h * g(t, x(t))
+
+Donde x(t) representa la aproximación de la función en el tiempo t.
+"""
+
+# ╔═╡ 8b835d71-8a9d-4579-a4a8-4696a9148edf
+begin
+#Al aplicar el método de Euler a la ecuación diferencial x'(t) = g(t, x(t)), donde la función g solo depende del tiempo, esencialmente estamos aproximando la solución al realizar una aproximación paso a paso usando el fórmula:
+#x(t + Δt) = x(t) + Δt * g(t, x(t))
+
+#Aquí, Δt representa el tamaño del paso de tiempo. En cada iteración, calculamos el valor de x en el siguiente punto de tiempo (t + Δt) en función del valor actual de x (t) y la función derivada g evaluada en el punto de tiempo actual.
+
+function metodo_euler_tiempo(j, xx0, tt0, tfinal, Δt)
+    T = tt0   #Donde j:es la función, T:tiempo, xx0:valor incial, tt0:tiempo inicial, tfinal:tiempo final
+    X = xx0   #Δt:tamaño de paso 
+    resultado = [(T, X)]  # se almacena el tiempo y los valores x correspondientes en una lista de tuplas
+
+    while T < tfinal
+        X = X + Δt * j(T, X)
+        T += Δt
+        push!(resultado, (T, X))
+    end
+
+    return resultado
+end
+
+# Definimos la derivada de la función j(T, X) - en este caso, solo depende del tiempo
+function j(T, X)
+    return sin(T)
+end
+
+# Especificamos la condición inicial, el tiempo inicial, final y el tamaño de paso.
+xx0 = 1.0
+tt0 = 0.0
+tfinal = 10.0
+Δt = 0.1
+
+# Aplicamos el método de Euler
+resultado = metodo_euler_tiempo(j, xx0, tt0, tfinal, Δt)
+
+# Comparamos con una solución analítica, asumiendo que la conocemos 
+solucion_analitica(T) = -cos(T) + 2.0
+
+# Imprimimos los resultados y la comparamos con la solución analítica
+for (T, X) in resultado
+    println("T = $T, Solucion numerica: $X, Solucion analitica: $(solucion_analitica(T))")
+end
+end
 
 # ╔═╡ c44f5b44-8899-444a-b5c4-f87e98102013
 md""" **Ejercicio** Utiliza tu implementación del método de Euler para solucionar el problema de condiciones iniciales $(1),(2)$. Grafica tu resultado junto con la gráfica de la solución analítica encontrada en el **Ejemplo** de la sección "Condiciones iniciales" y haz interactivo el parámetro $N$ para observar cómo cambia la aproximación que da tu solución numérica de la solución analítica en función del número de puntos utilizados en el intervalo $[t_0,t_f]$. """
 
-# ╔═╡ 80b45143-b908-4f89-bb6f-1cb500529ea9
-# Tu código (comentado) va aquí :)
+# ╔═╡ 2f775bbc-f877-46a5-9793-ad521ed226c5
+begin
+	
+# Función que define la ecuación diferencial
+function ff(ttt, xxx)
+    return xxx
+end
+
+# Solución analítica
+function analytical_solution(ttt)
+    return 5 * exp(ttt)
+end
+
+# Implementación del método de Euler
+function euler_method(ff, tt00, ttf, xx00, NNN)
+    hhh = (ttf - tt00) / NNN
+    ttt = collect(tt00:hhh:ttf)
+    xxx = zeros(NNN+1)
+    xxx[1] = xx00
+
+    for i in 1:NNN
+        xxx[i+1] = xxx[i] + hhh * ff(ttt[i], xxx[i])
+    end
+
+    return ttt, xxx
+end
+	Deslizador = @bind D Slider(-10:0.1:10, default = 1)
+	D # Mostramos el valor de C.
+	r(t) = C*exp(t) # Definimos una función x(t) = Ce^t con la variable interactiva C (el parámetro de la familia)
+end
 
 # ╔═╡ e0081798-1e7e-47b3-a7d2-1d0f29d59990
 md""" ## Nota final
@@ -339,7 +522,7 @@ PlutoUI = "~0.7.39"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.4"
+julia_version = "1.8.5"
 manifest_format = "2.0"
 project_hash = "02e70b7d926cc3868981bc53aa675eecda1ec259"
 
@@ -1316,20 +1499,22 @@ version = "0.9.1+5"
 # ╟─194d5ee5-0c88-4b12-a7b9-fda675709e84
 # ╟─0aacbcb0-30dd-4241-aac1-7db4ca76200b
 # ╟─7cf646d6-5c4e-430c-9ee2-a389b81ddb0b
-# ╟─0bf8be91-fdec-455f-b419-848451ef686e
+# ╠═0bf8be91-fdec-455f-b419-848451ef686e
 # ╟─858b97dd-c384-49cd-981a-e2a29ffbfb2a
-# ╟─8655c243-679b-46fb-b506-a0b035e902b7
-# ╠═643043b9-ae20-4071-9367-b282f2654fd7
+# ╠═8655c243-679b-46fb-b506-a0b035e902b7
+# ╠═9a76ad7b-47c4-4d57-9ad8-046119e4cc5a
 # ╟─c84d2b95-07a4-45f8-8e7e-e372acc89cb8
-# ╠═b0eb99e9-978a-4914-90a9-e05c73115e73
-# ╟─fa999314-0038-498a-ac9e-3ce04a9435a3
+# ╠═f9c3c11f-46f1-4052-bbde-9f1b836c609e
+# ╠═fa999314-0038-498a-ac9e-3ce04a9435a3
 # ╠═ecf4e2e8-821d-4e32-82d8-5eaec50363c3
-# ╟─1ec8d06d-160f-49de-a1aa-25c9d17cce64
+# ╠═1ec8d06d-160f-49de-a1aa-25c9d17cce64
 # ╠═7c8c2188-3173-4202-8ba4-83554831d940
-# ╟─1dc4a3c3-6b1c-4024-bfaf-ce72f5533209
-# ╠═d821fc74-b60f-4571-bd82-44b4f7ece230
+# ╠═0e173521-5199-4d76-988e-ac6fe2703344
+# ╠═1dc4a3c3-6b1c-4024-bfaf-ce72f5533209
+# ╟─d821fc74-b60f-4571-bd82-44b4f7ece230
+# ╠═8b835d71-8a9d-4579-a4a8-4696a9148edf
 # ╟─c44f5b44-8899-444a-b5c4-f87e98102013
-# ╠═80b45143-b908-4f89-bb6f-1cb500529ea9
+# ╠═2f775bbc-f877-46a5-9793-ad521ed226c5
 # ╟─e0081798-1e7e-47b3-a7d2-1d0f29d59990
 # ╟─84f733e5-8e7a-4df7-880d-49ca09683257
 # ╟─fc7efcf9-70ca-4c3d-9822-720c67dcc7f7
