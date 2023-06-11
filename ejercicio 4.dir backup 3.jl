@@ -143,7 +143,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": 118,
    "id": "435bccde",
    "metadata": {},
    "outputs": [
@@ -153,7 +153,7 @@
        "derivada_aproximada (generic function with 2 methods)"
       ]
      },
-     "execution_count": 1,
+     "execution_count": 118,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -180,7 +180,7 @@
     "        \n",
     "        return D3\n",
     "    end\n",
-    "end"
+    "end\n"
    ]
   },
   {
@@ -207,7 +207,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": 120,
    "id": "c5112f05",
    "metadata": {},
    "outputs": [
@@ -217,7 +217,7 @@
        "-0.9092973575578848"
       ]
      },
-     "execution_count": 2,
+     "execution_count": 120,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -333,19 +333,29 @@
     "\n",
     "Ejercicio 1"
    ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0022bb9c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "2+2"
+   ]
   }
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Julia 1.9.1",
+   "display_name": "Julia 1.8.5",
    "language": "julia",
-   "name": "julia-1.9"
+   "name": "julia-1.8"
   },
   "language_info": {
    "file_extension": ".jl",
    "mimetype": "application/julia",
    "name": "julia",
-   "version": "1.9.1"
+   "version": "1.8.5"
   }
  },
  "nbformat": 4,
